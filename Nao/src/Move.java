@@ -7,14 +7,31 @@
 import com.aldebaran.proxy.*;
 
 public class Move {
-	private static String NAOQI_IP = "nao.local";
+	private static String NAOQI_IP = "192.168.100.12";
 	private static int NAOQI_PORT = 9559;
 
-	public static void main(String[] args) {
-		ALMotionProxy motion = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
+	private final ALMotionProxy motion;
+
+	// public static void main(String[] args) {
+	// ALMotionProxy motion = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
+	// motion.wakeUp();
+	// motion.moveInit();
+	// motion.moveTo(0.3f, 0.0f, 0.0f);
+	// motion.rest();
+	// }
+
+	public Move() {
+		motion = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
+
+	}
+
+	public void laufe() {
 		motion.wakeUp();
 		motion.moveInit();
-		motion.moveTo(0.3f, 0.0f, 0.0f);
-		motion.rest();
+		motion.moveTo(5f, 0.0f, 0.0f);
+	}
+
+	public void halteAn() {
+		motion.stopMove();
 	}
 }
