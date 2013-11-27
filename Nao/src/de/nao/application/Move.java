@@ -1,3 +1,5 @@
+package de.nao.application;
+
 /*
  * Make the robot wake up, move forward and then rest
  *
@@ -7,24 +9,15 @@
 import com.aldebaran.proxy.*;
 
 public class Move {
-	private static String NAOQI_IP = "192.168.100.7";
-	private static int NAOQI_PORT = 9559;
-
 	private final ALMotionProxy motion;
 
-	public static void main(String[] args) {
-		ALMotionProxy motion = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
-
-		motion.openHand("RHand");
-		// motion.wakeUp();
-		// motion.moveInit();
-		// motion.moveTo(0.3f, 0.0f, 0.0f);
-		// motion.rest();
-	}
-
-	public Move() {
+	public Move(String NAOQI_IP, int NAOQI_PORT) {
 		motion = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
 
+	}
+	
+	public void initLaufen(){
+		
 	}
 
 	public void laufe() {
