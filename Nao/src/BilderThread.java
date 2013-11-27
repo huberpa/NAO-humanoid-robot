@@ -23,9 +23,6 @@ public class BilderThread extends JFrame implements Runnable {
 		System.loadLibrary("jnaoqi");
 	}
 
-	static {
-		System.loadLibrary("jnaoqi");
-	}
 
 	public BilderThread(String name) {
 		this.name = name;

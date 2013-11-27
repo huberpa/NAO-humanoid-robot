@@ -31,6 +31,8 @@ public class Gui implements KeyListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 
+		new Thread(new Video(panel, NAOQI_IP, NAOQI_PORT)).start();
+
 		initialisiereLaufen();
 	}
 

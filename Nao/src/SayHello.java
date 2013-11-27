@@ -11,7 +11,7 @@ public class SayHello {
 	public static void main(String[] args) {
 		ALTextToSpeechProxy tts = new ALTextToSpeechProxy(NAOQI_IP, NAOQI_PORT);
 		tts.setLanguage("english");
-		tts.say("i am hungry");
+		tts.say("i am relaxed");
 	}
 }
 
