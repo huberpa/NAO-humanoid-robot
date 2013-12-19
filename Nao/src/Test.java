@@ -5,7 +5,7 @@ import com.aldebaran.proxy.ALVideoDeviceProxy;
 import com.aldebaran.proxy.Variant;
 
 public class Test {
-	private static String NAOQI_IP = "192.168.100.7";
+	private static String NAOQI_IP = "192.168.100.15";
 	private static int NAOQI_PORT = 9559;
 
 	public static void main(String[] args) {
@@ -29,9 +29,19 @@ public class Test {
 		// deaktiviereStiffness();
 
 		ALRobotPostureProxy pp = new ALRobotPostureProxy(NAOQI_IP, NAOQI_PORT);
+		String pFam = pp.getPostureFamily();
+		System.out.println(pFam);
+		
+		
 		pp.stopMove();
 		pp.goToPosture("Stand", 1f);
-		ALMotionProxy mp = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
+		
+		String pFam2 = pp.getPostureFamily();
+		System.out.println(pFam2);
+		
+		
+		
+//		ALMotionProxy mp = new ALMotionProxy(NAOQI_IP, NAOQI_PORT);
 
 		// mp.move(0.5f, 0f, 0f);
 

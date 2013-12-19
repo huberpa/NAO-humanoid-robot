@@ -7,7 +7,7 @@
 import com.aldebaran.proxy.*;
 
 public class Move {
-	private static String NAOQI_IP = "192.168.100.7";
+	private static String NAOQI_IP = "192.168.100.12";
 	private static int NAOQI_PORT = 9559;
 
 	private final ALMotionProxy motion;
@@ -28,9 +28,19 @@ public class Move {
 	}
 
 	public void laufe() {
+		stellen();
+
+		System.out.println("vor wakeUp");
 		motion.wakeUp();
 		motion.moveInit();
 		motion.moveTo(5f, 0.0f, 0.0f);
+	}
+
+	private void stellen() {
+		ALRobotPostureProxy pp = new ALRobotPostureProxy(NAOQI_IP, NAOQI_PORT);
+		pp.stopMove();
+		pp.goToPosture("Stand", 1f);
+		System.out.println("nach aufstehen");
 	}
 
 	public void halteAn() {

@@ -9,20 +9,11 @@ import java.awt.image.BufferedImage;
 import com.aldebaran.proxy.*;
 
 @SuppressWarnings("serial")
-public class ShowImage extends Frame {
+public class ShowImageAlt extends Frame {
 
-	private int width = 160;
-	private int height = 120;
-	private int resolution = width * height;
-	
-	// for subscribe: 160x120 = 0
-	private static int resolutionID = 0;
-	
-	//RGB = 0xbbggrr
-	private static int colorSpace = 11;
-	
-	//FPS
-	private static int fps = 5;
+	final int width = 160;
+	final int height = 120;
+	final int aufloesung = width * height;
 
 	static {
 		System.loadLibrary("jnaoqi");
@@ -32,12 +23,15 @@ public class ShowImage extends Frame {
 	private static String NAOQI_IP = "192.168.100.15";
 	private static int NAOQI_PORT = 9559;
 
-	public ShowImage(byte[] buff) {
+	public ShowImageAlt(byte[] buff) {
+
 		super("Image Frame");
+
 		MediaTracker mt = new MediaTracker(this);
 		int[] intArray;
-		intArray = new int[resolution];
-		for (int i = 0; i < resolution; i++) {
+
+		intArray = new int[aufloesung];
+		for (int i = 0; i < aufloesung; i++) {
 			intArray[i] = ((255 & 0xFF) << 24) | // alpha
 					((buff[i * 3 + 0] & 0xFF) << 16) | // red
 					((buff[i * 3 + 1] & 0xFF) << 8) | // green
@@ -70,20 +64,41 @@ public class ShowImage extends Frame {
 	}
 
 	public static void main(String[] args) {
+
+		System.out.println("start");
 		ALVideoDeviceProxy videoDevice = new ALVideoDeviceProxy(NAOQI_IP,
 				NAOQI_PORT);
 
-		videoDevice.subscribe("java", resolutionID, colorSpace, 5);
-		Variant ret = videoDevice.getImageRemote("java");
-		videoDevice.unsubscribe("java");
+		try {
+			videoDevice.unsubscribe("java");
+		} catch (RuntimeException re) {
+
+		}
+		System.out.println("nach unsub");
+
+		videoDevice.subscribe("java", 0, 11, 30);
+		System.out.println("nach subscribe");
+
+		Variant ret = null;
+		for (int i = 0; i < 5; i++) {
+			// ret = videoDevice.getImageRemote("java");
+			ret = videoDevice.getDirectRawImageRemote("java");
+			System.out.println("nach getImage");
+
+		}
 
 		// Video device documentation explain that image is element 6
 		Variant imageV = ret.getElement(6);
+		System.out.println("nach getElem");
 
 		// display image from byte array
 		byte[] binaryImage = imageV.toBinary();
+		System.out.println("nach toBina");
 
-		new ShowImage(binaryImage);
+		new ShowImageAlt(binaryImage);
+
+		videoDevice.unsubscribe("java");
+		System.out.println("nach unsub ende");
 	}
 
 }
