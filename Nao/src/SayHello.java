@@ -10,8 +10,8 @@ public class SayHello {
 
 	public static void main(String[] args) {
 		ALTextToSpeechProxy tts = new ALTextToSpeechProxy(NAOQI_IP, NAOQI_PORT);
-		tts.setLanguage("german");
+//		tts.setLanguage("german");
 		// tts.say("33 Komma 3 3 3 3 3 3 Überhitzt 3 3 3 3 3 3 3 3 3 3 3");
-		tts.say("");
+		tts.say("have a break have a kit kat");
 	}
 }
