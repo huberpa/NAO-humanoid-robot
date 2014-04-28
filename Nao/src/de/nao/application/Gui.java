@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -36,20 +37,42 @@ public class Gui implements KeyListener {
 	// (vor/zurück), (links/rechts)-Drehung, (links/rechts)-Bewegung
 	private int[] movement = new int[] { 0, 0, 0 };
 	private TextToSpeech tts;
+	private MoveHead moveHead;
 	private final JTextArea textArea;
 	private JComboBox<String> historyBox;
-	private LinkedList<String> historyList;
+	// private LinkedList<String> historyList;
 	private DefaultComboBoxModel<String> historyModel;
+	private final Color buttonColor;
+	private final JCheckBox keysActivated;
+	private ShowImage showImage = null;
+	private final JFrame errorFrame;
+	private JLabel errorLabel;
+	private boolean error;
 
-	public Gui(String NAOQI_IP, int NAOQI_PORT) {
+	// private Move move;
+
+	public Gui(final String NAOQI_IP, final int NAOQI_PORT) {
 		this.NAOQI_IP = NAOQI_IP;
 		this.NAOQI_PORT = NAOQI_PORT;
 
+		errorLabel = new JLabel();
+		errorFrame = new JFrame();
+		errorFrame.add(errorLabel);
+		errorFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		error = false;
+
+		buttonColor = Color.gray;
 		try {
 			tts = new TextToSpeech(NAOQI_IP, NAOQI_PORT);
+			moveHead = new MoveHead(NAOQI_IP, NAOQI_PORT);
+
 		} catch (Exception e) {
-			System.out
-					.println("Verbindungsfehler, bitte mit Router verbinden und IP prüfen");
+			e.printStackTrace();
+			error = true;
+			errorLabel
+					.setText("Verbindungsfehler,  bitte mit Router verbinden und IP prüfen");
+			errorFrame.pack();
+			errorFrame.setVisible(true);
 		}
 
 		frame = new JFrame("Nao Steuerung");
@@ -64,11 +87,22 @@ public class Gui implements KeyListener {
 		JMenu dateiMenu = new JMenu("Datei");
 		JMenu hilfeMenu = new JMenu("Hilfe");
 
-		JMenuItem dateiLaden = new JMenuItem("Datei laden");
-		dateiLaden.addActionListener(new ActionListener() {
+		JMenuItem videoStarten = new JMenuItem("Video starten");
+		videoStarten.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				Thread t = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						if (null == showImage) {
+							showImage = new ShowImage(NAOQI_IP, NAOQI_PORT);
+						}
+					}
+				});
+				t.start();
+
 			}
 		});
 
@@ -90,7 +124,7 @@ public class Gui implements KeyListener {
 		});
 
 		// Zusammenfügen
-		dateiMenu.add(dateiLaden);
+		dateiMenu.add(videoStarten);
 		dateiMenu.add(ende);
 		hilfeMenu.add(hilfeItem);
 		menuBar.add(dateiMenu);
@@ -104,51 +138,112 @@ public class Gui implements KeyListener {
 				10));
 		controlMovePanel.setBackground(Color.lightGray);
 
-		JButton qButton = new JButton("Q");
+		final JButton qButton = new JButton("Links");
+		qButton.setBackground(buttonColor);
 		qButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				if (qButton.getBackground() == buttonColor) {
+					qButton.setBackground(Color.GREEN);
+					movement[2]--;
+					move();
+				} else {
+					qButton.setBackground(buttonColor);
+					movement[2]++;
+					stopMove();
+				}
+				textArea.requestFocus();
 			}
 		});
 
-		JButton wButton = new JButton("W");
+		final JButton wButton = new JButton("Vor");
+		wButton.setBackground(buttonColor);
 		wButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				if (wButton.getBackground() == buttonColor) {
+					wButton.setBackground(Color.GREEN);
+					movement[0]++;
+					move();
+				} else {
+					wButton.setBackground(buttonColor);
+					movement[0]--;
+					stopMove();
+				}
+				textArea.requestFocus();
 			}
 		});
 
-		JButton eButton = new JButton("E");
+		final JButton eButton = new JButton("Rechts");
+		eButton.setBackground(buttonColor);
 		eButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				if (eButton.getBackground() == buttonColor) {
+					eButton.setBackground(Color.GREEN);
+					movement[2]++;
+					move();
+				} else {
+					eButton.setBackground(buttonColor);
+					movement[2]--;
+					stopMove();
+				}
+				textArea.requestFocus();
 			}
 		});
 
-		JButton aButton = new JButton("A");
+		final JButton aButton = new JButton("Links drehen");
+		aButton.setBackground(buttonColor);
 		aButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				if (aButton.getBackground() == buttonColor) {
+					aButton.setBackground(Color.GREEN);
+					movement[1]--;
+					move();
+				} else {
+					aButton.setBackground(buttonColor);
+					movement[1]++;
+					stopMove();
+				}
+				textArea.requestFocus();
 			}
 		});
 
-		JButton sButton = new JButton("S");
+		final JButton sButton = new JButton("Zurück");
+		sButton.setBackground(buttonColor);
 		sButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				if (sButton.getBackground() == buttonColor) {
+					sButton.setBackground(Color.GREEN);
+					movement[0]--;
+					move();
+				} else {
+					sButton.setBackground(buttonColor);
+					movement[0]++;
+					stopMove();
+				}
+				textArea.requestFocus();
 			}
 		});
 
-		JButton dButton = new JButton("D");
+		final JButton dButton = new JButton("Rechts drehen");
+		dButton.setBackground(buttonColor);
 		dButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
+				if (dButton.getBackground() == buttonColor) {
+					dButton.setBackground(Color.GREEN);
+					movement[1]++;
+					move();
+				} else {
+					dButton.setBackground(buttonColor);
+					movement[1]--;
+					stopMove();
+				}
+				textArea.requestFocus();
 			}
 		});
 
@@ -168,34 +263,69 @@ public class Gui implements KeyListener {
 				10));
 		controlHeadPanel.setBackground(Color.lightGray);
 
-		JButton upButton = new JButton("Up");
+		JButton upButton = new JButton("Kopf hoch");
+		upButton.setBackground(buttonColor);
 		upButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				Thread t = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						moveHead.up();
+					}
+				});
+				t.start();
 			}
 		});
 
-		JButton leftButton = new JButton("Left");
+		JButton leftButton = new JButton("Kopf links");
+		leftButton.setBackground(buttonColor);
 		leftButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
+				Thread t = new Thread(new Runnable() {
+
+					@Override
+					public void run() {
+						moveHead.left();
+					}
+				});
+				t.start();
+
 			}
 		});
 
-		JButton downButton = new JButton("Down");
+		JButton downButton = new JButton("Kopf runter");
+		downButton.setBackground(buttonColor);
 		downButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Thread t = new Thread(new Runnable() {
 
+					@Override
+					public void run() {
+						moveHead.down();
+					}
+				});
+				t.start();
 			}
 		});
 
-		JButton rightButton = new JButton("Right");
+		JButton rightButton = new JButton("Kopf rechts");
+		rightButton.setBackground(buttonColor);
 		rightButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				Thread t = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						moveHead.right();
+					}
+				});
+				t.start();
 
 			}
 		});
@@ -235,7 +365,7 @@ public class Gui implements KeyListener {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setPreferredSize(new Dimension(200, 50));
 
-		JButton okButton = new JButton("OK");
+		final JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -251,6 +381,23 @@ public class Gui implements KeyListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				textArea.setText((String) historyBox.getSelectedItem());
+			}
+		});
+
+		keysActivated = new JCheckBox("Tastatursteuerung");
+		keysActivated.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (keysActivated.isSelected()) {
+					panel.requestFocus();
+					textArea.setEnabled(false);
+					okButton.setEnabled(false);
+				} else {
+					textArea.setEnabled(true);
+					okButton.setEnabled(true);
+					textArea.requestFocus();
+				}
 			}
 		});
 
@@ -277,6 +424,12 @@ public class Gui implements KeyListener {
 		gbc.gridwidth = 4;
 		gbc.insets = new Insets(5, 5, 5, 5);
 		panel.add(controlHeadPanel, gbc);
+
+		x = x + 4;
+		gbc.gridx = x;
+		gbc.gridwidth = 1;
+		gbc.insets = new Insets(5, 5, 5, 5);
+		panel.add(keysActivated, gbc);
 
 		// 2. Zeile
 		x = 0;
@@ -315,7 +468,7 @@ public class Gui implements KeyListener {
 		// panel.add(textField, BorderLayout.SOUTH);
 
 		panel.setFocusable(true);
-		panel.requestFocus();
+		// panel.requestFocus();
 		panel.addKeyListener(this);
 
 		frame.add(menuBar, BorderLayout.NORTH);
@@ -325,11 +478,9 @@ public class Gui implements KeyListener {
 		frame.pack();
 		frame.setAlwaysOnTop(true);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-
-		// new Thread(new Video(panel, NAOQI_IP, NAOQI_PORT)).start();
-
-		// initialisiereLaufen();
+		if (!error) {
+			frame.setVisible(true);
+		}
 	}
 
 	private void textToSpeech() {
@@ -354,163 +505,110 @@ public class Gui implements KeyListener {
 
 	}
 
-	// private void initialisiereLaufen() {
-	// final JButton laufenButton = new JButton("Laufen");
-	// laufenButton.addActionListener(new ActionListener() {
-	// @Override
-	// public void actionPerformed(ActionEvent e) {
-	// if (laufenButton.getText().equals("Laufen")) {
-	// laufenButton.setText("Anhalten");
-	// System.out.println("starte laufen");
-	// Thread t = new Thread(new Runnable() {
-	//
-	// @Override
-	// public void run() {
-	// movement[0] = 1;
-	// new Move(NAOQI_IP, NAOQI_PORT).walk(movement);
-	// }
-	// });
-	// t.start();
-	//
-	// } else {
-	// laufenButton.setText("Laufen");
-	// System.out.println("anhalten");
-	// Thread t = new Thread(new Runnable() {
-	//
-	// @Override
-	// public void run() {
-	// movement[0] = 0;
-	// new Move(NAOQI_IP, NAOQI_PORT).stopMove();
-	// }
-	// });
-	// t.start();
-	//
-	// }
-	// }
-	// });
-	// panel.add(laufenButton);
-	//
-	// }
-
 	@Override
 	public void keyTyped(KeyEvent e) {
-		// System.out.println("Typed: " + e.getKeyCode() + ", " +
-		// e.getKeyChar());
 
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		int keyCode = e.getKeyCode();
-		if (!pressedKeys.contains(keyCode)) {
-			pressedKeys.add(keyCode);
+		if (keysActivated.isSelected()) {
+			int keyCode = e.getKeyCode();
+			if (!pressedKeys.contains(keyCode)) {
+				pressedKeys.add(keyCode);
 
-			// w: 87
-			if (keyCode == 87) {
-				// vorwärts
-				movement[0]++;
-			}
-
-			// s: 83
-			else if (keyCode == 83) {
-				// rückwärts
-				movement[0]--;
-			}
-
-			// a: 65
-			else if (keyCode == 65) {
-				// links drehen
-				movement[1]--;
-			}
-
-			// d: 68
-			else if (keyCode == 68) {
-				// rechts drehen
-				movement[1]++;
-			}
-
-			// q: 81
-			else if (keyCode == 81) {
-				// links gehen
-				movement[2]--;
-			}
-
-			// e: 69
-			else if (keyCode == 69) {
-				// rechts gehen
-				movement[2]++;
-			}
-
-			System.out.print("Pressed Code: " + keyCode + ", movement: ");
-			for (int i = 0; i < movement.length; i++) {
-				System.out.print(movement[i] + ", ");
-			}
-			System.out.println();
-
-			stopMove();
-
-			Thread t = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					System.out.println("vor new Move()");
-					new Move(NAOQI_IP, NAOQI_PORT).walk(movement);
+				// w: 87
+				if (keyCode == 87) {
+					// vorwärts
+					movement[0]++;
 				}
-			});
-			t.start();
-		}
 
+				// s: 83
+				else if (keyCode == 83) {
+					// rückwärts
+					movement[0]--;
+				}
+
+				// a: 65
+				else if (keyCode == 65) {
+					// links drehen
+					movement[1]--;
+				}
+
+				// d: 68
+				else if (keyCode == 68) {
+					// rechts drehen
+					movement[1]++;
+				}
+
+				// q: 81
+				else if (keyCode == 81) {
+					// links gehen
+					movement[2]--;
+				}
+
+				// e: 69
+				else if (keyCode == 69) {
+					// rechts gehen
+					movement[2]++;
+				}
+
+				move();
+			}
+		}
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		int keyCode = e.getKeyCode();
-		pressedKeys.remove((Object) keyCode);
+		if (keysActivated.isSelected()) {
+			int keyCode = e.getKeyCode();
+			if (pressedKeys.contains(keyCode)) {
+				stopMove();
 
-		// w: 87
-		if (keyCode == 87) {
-			// vorwärts
-			movement[0]--;
-		}
+				pressedKeys.remove((Object) keyCode);
 
-		// s: 83
-		else if (keyCode == 83) {
-			// rückwärts
-			movement[0]++;
-		}
+				// w: 87
+				if (keyCode == 87) {
+					// vorwärts
+					movement[0]--;
+				}
 
-		// a: 65
-		else if (keyCode == 65) {
-			// links drehen
-			movement[1]++;
-		}
+				// s: 83
+				else if (keyCode == 83) {
+					// rückwärts
+					movement[0]++;
+				}
 
-		// d: 68
-		else if (keyCode == 68) {
-			// rechts drehen
-			movement[1]--;
-		}
+				// a: 65
+				else if (keyCode == 65) {
+					// links drehen
+					movement[1]++;
+				}
 
-		// q: 81
-		else if (keyCode == 81) {
-			// links gehen
-			movement[2]++;
-		}
+				// d: 68
+				else if (keyCode == 68) {
+					// rechts drehen
+					movement[1]--;
+				}
 
-		// e: 69
-		else if (keyCode == 69) {
-			// rechts gehen
-			movement[2]--;
-		}
+				// q: 81
+				else if (keyCode == 81) {
+					// links gehen
+					movement[2]++;
+				}
 
-		System.out.print("Released: " + keyCode + ", movement: ");
-		for (int i = 0; i < movement.length; i++) {
-			System.out.print(movement[i] + ", ");
+				// e: 69
+				else if (keyCode == 69) {
+					// rechts gehen
+					movement[2]--;
+				}
+			}
 		}
-		System.out.println();
+	}
+
+	private void move() {
 
 		stopMove();
-
 		Thread t = new Thread(new Runnable() {
 
 			@Override
